@@ -20,8 +20,6 @@
         <span>เข้าร่วมห้อง</span>
     </button>
 
-    <a href="/admin" class="text-white/80 text-[clamp(0.875rem,3.5vw,1rem)] underline underline-offset-4 active:text-white transition">
-        สำหรับผู้ดูแล คลิกที่นี่
-    </a>
+    
 </div>
 </div>

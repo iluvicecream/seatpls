@@ -1,14 +1,5 @@
 import { json, type RequestHandler } from '@sveltejs/kit';
-import { env } from '$env/dynamic/private';
 import { pb } from '$lib/config';
-
-/**
- * Header the `student` collection requires on reads, per its rule:
- *   @request.headers.backendauthkey = "<the PB_AUTH_KEY env value>"
- * The key comes from the `PB_AUTH_KEY` env var (see .env / wrangler vars).
- * This route runs server-side only, so it never reaches the client.
- */
-const BACKEND_AUTH_KEY = env.PB_AUTH_KEY ?? '';
 
 /**
  * Shape of the student info returned by this endpoint.
@@ -24,8 +15,7 @@ export interface StudentInfo {
 /**
  * GET /student_id/get_info?student_id=32046
  *
- * Looks the student up in the PocketBase `student` collection via the
- * unauthenticated (public) API.
+ * Looks the student up in the PocketBase `student` collection (public read).
  */
 export const GET: RequestHandler = async ({ url }) => {
 	const studentId = url.searchParams.get('student_id') ?? '';
@@ -36,8 +26,7 @@ export const GET: RequestHandler = async ({ url }) => {
 
 	try {
 		const record = await pb.collection('student').getFirstListItem<StudentInfo>(
-			`student_id = "${studentId}"`,
-			{ headers: { backendauthkey: BACKEND_AUTH_KEY } }
+			`student_id = "${studentId}"`
 		);
 		const { student_id, student_firstname, student_lastname, student_class, student_number } =
 			record;

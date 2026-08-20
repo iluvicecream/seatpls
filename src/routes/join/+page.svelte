@@ -2,10 +2,10 @@
     import { page } from '$app/stores'
     import { onMount } from 'svelte'
     import { ChevronLeft, TriangleAlert, KeyRound, UserRound, Fingerprint, LoaderCircle, LogIn } from '@lucide/svelte'
-    import { config, pb } from '$lib/config'
+    import { config } from '$lib/config'
 
-    // ?stage={} || enter_code , enter_name
-    var stage = $page.url.searchParams.get('stage') || 'enter_code'
+    // ?stage={} || enter_name
+    var stage = $page.url.searchParams.get('stage') || 'enter_name'
 
     var code = $state($page.url.searchParams.get('code') || '')
     var name = $state($page.url.searchParams.get('name') || '')
@@ -71,23 +71,18 @@
         }
     }
 
-    var validating = $state(false)
-    var codeError = $state('')
-
-    async function validateCode() {
-        if (!code.trim() || validating) return
-        validating = true
-        codeError = ''
-        try {
-            const res = await fetch(`/join/validate?code=${encodeURIComponent(code.trim())}`)
-            const data = (await res.json()) as { error?: string }
-            if (!res.ok) throw new Error(data.error ?? 'invalid code')
-            window.location.href = `/join?stage=enter_name`
-        } catch {
-            codeError = 'ไม่พบห้องนี้ กรุณาตรวจสอบรหัส'
-        } finally {
-            validating = false
+    // Move to the room page (which opens the realtime seat view).
+    function joinRoom() {
+        const params = new URLSearchParams({ code })
+        if (nameType === 'student_id') {
+            params.set('student_id', studentId)
+            if (studentInfo) {
+                params.set('student_name', `${studentInfo.student_firstname} ${studentInfo.student_lastname}`)
+            }
+        } else {
+            params.set('name', name)
         }
+        window.location.href = `/room?${params.toString()}`
     }
 </script>
 
@@ -100,48 +95,7 @@
         <ChevronLeft class="w-[6vw] h-[6vw] sm:w-6 sm:h-6" />
     </button>
 
-    {#if stage === 'enter_code'}
-        <div class="flex-1 flex flex-col w-full max-w-md mx-auto">
-            <div class="flex-1 flex flex-col items-center justify-center gap-[3vh] text-center">
-                <span class="bg-white/15 p-[4vw] sm:p-5 rounded-2xl text-white">
-                    <KeyRound class="w-[8vw] h-[8vw] sm:w-8 sm:h-8" />
-                </span>
-
-                <div class="flex flex-col gap-[1vh]">
-                    <h1 class="font-bold text-white text-[clamp(1.5rem,6vw,2.5rem)]">เข้าร่วมห้อง</h1>
-                    <p class="text-gray-100 text-[clamp(1rem,4vw,1.25rem)]">กรอกรหัสห้องเพื่อเข้าร่วม</p>
-                </div>
-
-                <input
-                    type="text"
-                    inputmode="numeric"
-                    autocomplete="one-time-code"
-                    placeholder="รหัสห้อง"
-                    bind:value={code}
-                    onkeydown={(e) => { if (e.key === 'Enter') validateCode() }}
-                    class="w-full bg-white text-black placeholder-gray-400 rounded-2xl px-[5vw] py-[4vw] sm:px-6 sm:py-4 text-[clamp(1.125rem,4.5vw,1.375rem)] text-center font-bold outline-none focus:ring-4 focus:ring-white/40 transition"
-                />
-
-                {#if codeError}
-                    <p class="text-red-200 text-[clamp(0.875rem,3.5vw,1rem)]">{codeError}</p>
-                {/if}
-            </div>
-
-            <button
-                onclick={validateCode}
-                disabled={!code || validating}
-                class="w-full bg-black text-white rounded-2xl py-[4vw] sm:py-4 font-bold text-[clamp(1.125rem,4.5vw,1.375rem)] flex items-center justify-center gap-2 active:scale-[0.98] transition disabled:opacity-40 disabled:active:scale-100 drop-shadow-2xl"
-            >
-                {#if validating}
-                    <LoaderCircle class="w-[5vw] h-[5vw] sm:w-5 sm:h-5 animate-spin" />
-                    กำลังตรวจสอบ...
-                {:else}
-                    ต่อไป
-                    <LogIn class="w-[5vw] h-[5vw] sm:w-5 sm:h-5" />
-                {/if}
-            </button>
-        </div>
-    {:else if stage === 'enter_name'}
+    {#if stage === 'enter_name'}
         <div class="flex-1 flex flex-col w-full max-w-md mx-auto">
             {#if !configLoaded}
                 <div class="flex-1 flex items-center justify-center">
@@ -190,6 +144,7 @@
                 </div>
 
                 <button
+                    onclick={joinRoom}
                     disabled={!idValid || !studentInfo}
                     class="w-full bg-black text-white rounded-2xl py-[4vw] sm:py-4 font-bold text-[clamp(1.125rem,4.5vw,1.375rem)] flex items-center justify-center gap-2 active:scale-[0.98] transition disabled:opacity-40 disabled:active:scale-100 drop-shadow-2xl"
                 >
@@ -217,6 +172,7 @@
                 </div>
 
                 <button
+                    onclick={joinRoom}
                     disabled={!nameValid}
                     class="w-full bg-black text-white rounded-2xl py-[4vw] sm:py-4 font-bold text-[clamp(1.125rem,4.5vw,1.375rem)] flex items-center justify-center gap-2 active:scale-[0.98] transition disabled:opacity-40 disabled:active:scale-100 drop-shadow-2xl"
                 >
