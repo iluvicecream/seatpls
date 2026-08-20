@@ -87,7 +87,7 @@
     function seatClass(seat: SeatInfo | null) {
         if (!seat) return 'bg-white/5'
         if (seat.id === myReservation?.seat) return 'bg-green-400/50 text-white'
-        if (reservationsBySeat[seat.id]) return 'bg-orange-400/40 text-white/80'
+        if (reservationsBySeat[seat.id]) return 'bg-red-500/50 text-white/90'
         if (seat.status === 'locked') return 'bg-gray-400/30 text-white/70'
         return 'bg-white/20 text-white hover:bg-white/30 active:scale-95'
     }
