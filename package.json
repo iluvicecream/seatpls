@@ -27,6 +27,7 @@
 		"wrangler": "^4.97.0"
 	},
 	"dependencies": {
+		"@lucide/svelte": "^1.33.0",
 		"env-cmd": "^11.0.0",
 		"pocketbase": "^0.28.0"
 	}

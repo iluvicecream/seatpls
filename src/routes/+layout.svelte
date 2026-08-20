@@ -6,4 +6,6 @@
 </script>
 
 <svelte:head><link rel="icon" href={favicon} /></svelte:head>
+<div class="bg-orange-400">
 {@render children()}
+</div>
