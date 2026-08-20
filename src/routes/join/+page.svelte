@@ -71,8 +71,23 @@
         }
     }
 
-    function nextStage() {
-        window.location.href = `/join?stage=enter_name`
+    var validating = $state(false)
+    var codeError = $state('')
+
+    async function validateCode() {
+        if (!code.trim() || validating) return
+        validating = true
+        codeError = ''
+        try {
+            const res = await fetch(`/join/validate?code=${encodeURIComponent(code.trim())}`)
+            const data = (await res.json()) as { error?: string }
+            if (!res.ok) throw new Error(data.error ?? 'invalid code')
+            window.location.href = `/join?stage=enter_name`
+        } catch {
+            codeError = 'ไม่พบห้องนี้ กรุณาตรวจสอบรหัส'
+        } finally {
+            validating = false
+        }
     }
 </script>
 
@@ -103,17 +118,27 @@
                     autocomplete="one-time-code"
                     placeholder="รหัสห้อง"
                     bind:value={code}
+                    onkeydown={(e) => { if (e.key === 'Enter') validateCode() }}
                     class="w-full bg-white text-black placeholder-gray-400 rounded-2xl px-[5vw] py-[4vw] sm:px-6 sm:py-4 text-[clamp(1.125rem,4.5vw,1.375rem)] text-center font-bold outline-none focus:ring-4 focus:ring-white/40 transition"
                 />
+
+                {#if codeError}
+                    <p class="text-red-200 text-[clamp(0.875rem,3.5vw,1rem)]">{codeError}</p>
+                {/if}
             </div>
 
             <button
-                onclick={nextStage}
-                disabled={!code}
+                onclick={validateCode}
+                disabled={!code || validating}
                 class="w-full bg-black text-white rounded-2xl py-[4vw] sm:py-4 font-bold text-[clamp(1.125rem,4.5vw,1.375rem)] flex items-center justify-center gap-2 active:scale-[0.98] transition disabled:opacity-40 disabled:active:scale-100 drop-shadow-2xl"
             >
-                ต่อไป
-                <LogIn class="w-[5vw] h-[5vw] sm:w-5 sm:h-5" />
+                {#if validating}
+                    <LoaderCircle class="w-[5vw] h-[5vw] sm:w-5 sm:h-5 animate-spin" />
+                    กำลังตรวจสอบ...
+                {:else}
+                    ต่อไป
+                    <LogIn class="w-[5vw] h-[5vw] sm:w-5 sm:h-5" />
+                {/if}
             </button>
         </div>
     {:else if stage === 'enter_name'}
