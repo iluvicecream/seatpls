@@ -2,7 +2,7 @@
     import { page } from '$app/stores'
     import { onMount } from 'svelte'
     import { ChevronLeft, TriangleAlert, KeyRound, UserRound, Fingerprint, LoaderCircle, LogIn } from '@lucide/svelte'
-    import { config } from '$lib/config'
+    import { config, pb } from '$lib/config'
 
     // ?stage={} || enter_name
     var stage = $page.url.searchParams.get('stage') || 'enter_name'
@@ -35,10 +35,11 @@
         infoLoading = true
         infoError = ''
         try {
-            const res = await fetch(`/student_id/get_info?student_id=${encodeURIComponent(id)}`)
-            const data = (await res.json()) as StudentInfo & { error?: string }
-            if (!res.ok) throw new Error(data.error ?? 'fetch failed')
-            studentInfo = data
+            // direct client query — the student collection is publicly readable
+            const record = await pb
+                .collection('student')
+                .getFirstListItem<StudentInfo>(`student_id = "${id}"`)
+            studentInfo = record
         } catch {
             studentInfo = null
             infoError = 'ไม่พบข้อมูลนักเรียน'
