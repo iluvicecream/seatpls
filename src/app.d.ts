@@ -3,9 +3,7 @@
 declare global {
 	namespace App {
 		interface Platform {
-			env: {
-				DB: D1Database;
-			}
+			env: Env;
 			ctx: ExecutionContext;
 			caches: CacheStorage;
 			cf?: IncomingRequestCfProperties
