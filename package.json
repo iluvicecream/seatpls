@@ -11,7 +11,8 @@
 		"check": "wrangler types --check && svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
 		"check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch",
 		"gen": "wrangler types",
-		"import:students": "bun run scripts/import-students.ts"
+		"import:students": "bun run scripts/import-students.ts",
+		"import:seats": "bun run scripts/import-seats.ts"
 	},
 	"devDependencies": {
 		"@sveltejs/adapter-cloudflare": "^7.2.8",

@@ -278,7 +278,8 @@
                 </div>
             {:else}
                 <div class="grid gap-[1.5vw] sm:gap-1.5" style="grid-template-columns: repeat(13, minmax(0, 1fr))">
-                    {#each seatGrid as row, r}
+                    {#each Array.from({ length: GRID_ROWS }, (_, i) => GRID_ROWS - 1 - i) as r}
+                        {@const row = seatGrid[r]}
                         {#each row as seat, c}
                             {#if seat}
                                 {@const reservation = reservationsBySeat[seat.id]}
