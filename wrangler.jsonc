@@ -11,5 +11,13 @@
 		"directory": ".svelte-kit/cloudflare"
 	},
 	"workers_dev": true,
-	"preview_urls": true
+	"preview_urls": true,
+	"d1_databases": [
+		{
+      		"binding": "DB",
+      		"database_name": "seatpls-db",
+      		"database_id": "de007ece-349f-4164-8432-bec68a7aa766"
+    	}
+  ]
+
 }
