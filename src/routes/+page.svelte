@@ -1,2 +1,5 @@
-<h1>Welcome to SvelteKit</h1>
-<p>Visit <a href="https://svelte.dev/docs/kit">svelte.dev/docs/kit</a> to read the documentation</p>
+<h1>Welcome to seatpls</h1>
+
+<button onclick={() => window.location.href = '/create'}>Create Room</button>
+
+<button onclick={() => window.location.href = '/join'}>Join Room</button>
