@@ -1,4 +1,5 @@
 <script lang="ts">
+    import { onDestroy } from 'svelte'
     import { ChevronLeft, ShieldCheck, LockKeyhole, Plus, LoaderCircle, ClipboardList, UserRound } from '@lucide/svelte'
     import { ClientResponseError } from 'pocketbase'
     import { pb } from '$lib/config'
@@ -51,6 +52,34 @@
     var newSeatStatus = $state('available')
     var creating = $state(false)
     var seatError = $state('')
+
+    // --- realtime (started after entry) --------------------------------------
+    var unsubscribeSeats = $state<(() => Promise<void>) | null>(null)
+    var unsubscribeReservations = $state<(() => Promise<void>) | null>(null)
+
+    async function refreshSeats() {
+        try {
+            seats = await loadSeats()
+        } catch {
+            // keep the current list on transient errors
+        }
+    }
+
+    async function startRealtime() {
+        try {
+            // any seat/reservation change → re-fetch with expand so the
+            // admin sees new reservations and seat statuses immediately
+            unsubscribeSeats = await pb.collection('seats').subscribe('*', refreshSeats)
+            unsubscribeReservations = await pb.collection('reservations').subscribe('*', refreshSeats)
+        } catch {
+            // realtime is optional — the list still works on entry
+        }
+    }
+
+    onDestroy(() => {
+        unsubscribeSeats?.()
+        unsubscribeReservations?.()
+    })
 
     const statusColor: Record<string, string> = {
         available: 'bg-green-400/20 text-green-200',

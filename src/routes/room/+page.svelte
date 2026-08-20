@@ -179,8 +179,8 @@
             )
             myReservation = findMyReservation(reservations)
 
-            // realtime: seats ('true' = subscribe to all records)
-            unsubscribeSeats = await pb.collection('seats').subscribe<SeatInfo>('true', (e) => {
+            // realtime: seats ('*' = subscribe to all records — 'true' does NOT deliver events)
+            unsubscribeSeats = await pb.collection('seats').subscribe<SeatInfo>('*', (e) => {
                 if (e.action === 'create') {
                     liveSeats = [...liveSeats, e.record].sort(sortSeats)
                 } else if (e.action === 'update') {
@@ -193,10 +193,10 @@
                 }
             })
 
-            // realtime: reservations
+            // realtime: reservations ('*' = subscribe to all records)
             unsubscribeReservations = await pb
                 .collection('reservations')
-                .subscribe<Reservation>('true', (e) => {
+                .subscribe<Reservation>('*', (e) => {
                     if (e.action === 'create' || e.action === 'update') {
                         attachReservation(e.record)
                         if (e.action === 'create' && findMyReservation([e.record])) {
